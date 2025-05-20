@@ -166,14 +166,13 @@ def plot_value_function_grid(agent,
                       'pi_qrl', 
                       'pi_qrl_hi', 
                       'pi_qrl_lam', 
-                      'pi_qrl_lam_hi', 
-                      'pi_qrl_TD_hi', 
-                      'pi_qrl_TD']:
+                      'pi_qrl_lam_hi']:
         
         value_net = agent.network.select('value')
         value_function_output = -value_net(batch_input, batch_goal)
 
-    elif agent_name in ['pi_hiqrl', 'pi_hiqrl_TD', 'hiqrl', 'hiqrl_latent']:
+    elif agent_name in ['pi_hiqrl', 
+                        'hiqrl']:
 
         if agent.config["high_level_coordinates_only"]:
             value_net = agent.network.select('high_value')
@@ -191,28 +190,20 @@ def plot_value_function_grid(agent,
             value_function_output = -value_net(batch_input, batch_goal)
 
     elif agent_name in ['gcivl', 
-                        'hiql', 
-                        'pi_gcivl', 
-                        'pi_hiql']:
+                        'hiql']:
         
         value_net = agent.network.select('value')
         v1, v2 = value_net(batch_input, batch_goal)
         value_function_output = (v1 + v2) / 2
 
-    elif agent_name in ['crl', 'iql', 'cmd1', 'cmd2']:
+    elif agent_name in ['crl', 
+                        'gciql']:
+        
         dist = agent.network.select('actor')(batch_input, batch_goal)
         actions = jnp.clip(dist.mode(), -1, 1)
 
-        if agent_name in ['crl', 'gciql', 'pi_gciql']:
-            q1, q2 = agent.network.select('critic')(batch_input, batch_goal, actions)
-            value_function_output = (q1 + q2) / 2
-
-        elif agent_name in ['cmd1', 'cmd2']:
-            permute_future_action = jnp.roll(actions, 1, axis=0)
-            state_val = jnp.concatenate([batch_input, actions], axis=-1)
-            goal_val = jnp.concatenate([batch_goal, permute_future_action], axis=-1)
-
-            value_function_output = -agent.network.select('value')(state_val, goal_val)
+        q1, q2 = agent.network.select('critic')(batch_input, batch_goal, actions)
+        value_function_output = (q1 + q2) / 2
 
     value_function_grid = value_function_output.reshape(grid_size, grid_size)
 

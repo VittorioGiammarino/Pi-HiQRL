@@ -16,7 +16,7 @@ from absl import app, flags
 from agents import agents
 from ml_collections import config_flags
 from utils.datasets import Dataset, GCDataset, HGCDataset
-from utils.env_utils import generate_obstacle_coordinates, compute_speed_profile, compute_exponential_speed_profile, setup_egl
+from utils.env_utils import setup_egl
 from utils.evaluation import evaluate, plot_value_function_grid
 from utils.flax_utils import restore_agent, save_agent
 from utils.log_utils import CsvLogger, get_exp_name, get_flag_dict, get_wandb_video, setup_wandb
@@ -84,7 +84,7 @@ def main(_):
                                         config['agent_name'], 
                                         f'_latent_{latent_dim}' +'/'+exp_name)
 
-    elif config['agent_name'] in ['pi_hiqrl', 'pi_hiqrl_TD']:
+    elif config['agent_name'] in ['pi_hiqrl']:
 
         if config["high_level_coordinates_only"]:
 
@@ -108,7 +108,7 @@ def main(_):
                                         config['agent_name'], 
                                         'high_level_full_state' +'/'+exp_name)
             
-    elif config['agent_name'] in ['hiqrl', 'hiqrl_latent']:
+    elif config['agent_name'] in ['hiqrl']:
         pi_high_bool = config['pi_high']
         pi_low_bool = config['pi_low']
 
@@ -255,7 +255,7 @@ def main(_):
 
                 if FLAGS.plot_value_function>0:
                     
-                    if config['agent_name'] not in ['gcbc', 'hicmd1', 'hicmd2']:
+                    if config['agent_name'] not in ['gcbc']:
                     
                         plot_value_function_grid(agent=eval_agent,
                                             agent_name = config['agent_name'],
